@@ -1,0 +1,35 @@
+#Upload single file
+azcopy \
+    --source /mnt/myfiles/abc.txt \
+    --destination https://myaccount.blob.core.windows.net/mycontainer/abc.txt \
+    --dest-key <key>
+#If the specified destination container does not exist, AzCopy creates it and uploads the file into it.
+
+#Upload single file to virtual directory
+azcopy \
+    --source /mnt/myfiles/abc.txt \
+    --destination https://myaccount.blob.core.windows.net/mycontainer/vd/abc.txt \
+    --dest-key <key>
+#If the specified virtual directory does not exist, AzCopy uploads the file to include the virtual directory in the blob name (e.g., vd/abc.txt in the example above).
+
+#Redirect from stdin
+gzip myarchive.tar -c | azcopy \
+    --destination https://myaccount.blob.core.windows.net/mycontainer/mydir/myarchive.tar.gz \
+    --dest-key <key>
+    
+#Upload all files
+azcopy \
+    --source /mnt/myfiles \
+    --destination https://myaccount.blob.core.windows.net/mycontainer \
+    --dest-key <key> \
+    --recursive
+#Specifying option --recursive uploads the contents of the specified directory to Blob storage recursively, meaning that all subfolders and their files are uploaded as well. For instance, assume the following files reside in folder /mnt/myfiles
+
+#Upload files matching specified pattern
+azcopy \
+    --source /mnt/myfiles \
+    --destination https://myaccount.blob.core.windows.net/mycontainer \
+    --dest-key <key> \
+    --include "a*" \
+    --recursive
+

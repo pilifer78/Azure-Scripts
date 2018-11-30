@@ -1,0 +1,85 @@
+#Transfer data with AZCopy on Linux
+#AZCopy command-line utility for copying data to/from Microsoft Azure Blob and File storage. Can copy data between a file system
+#and storage account, or between storage accounts.
+
+#Requisites for Linux RHEL 7 distributions, install ICU and libunwind dependencies:
+yum install -y libunwind icu
+
+#RHEL 6 based distributions:
+wget -O azcopy.tar.gz https://aka.ms/downloadazcopylinuxrhel6
+tar -xf azcopy.tar.gz
+sudo ./install.sh
+
+#All other Linux distributions:
+wget -O azcopy.tar.gz https://aka.ms/downloadazcopylinux64
+tar -xf azcopy.tar.gz
+sudo ./install.sh
+
+#Alternative Installation on Ubuntu Ubuntu 14.04
+#Add apt source for Microsoft Linux product repository and install AzCopy:
+sudo echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod/ trusty main" > azure.list
+sudo cp ./azure.list /etc/apt/sources.list.d/
+sudo apt-key adv --keyserver packages.microsoft.com --recv-keys EB3E94ADBE1229CF
+
+sudo apt-get update
+sudo apt-get install azcopy
+
+#Writing your first AzCopy command
+#The basic syntax for AzCopy commands is:
+azcopy --source <source> --destination <destination> [Options]
+
+#Download single blob
+azcopy \
+    --source https://myaccount.blob.core.windows.net/mycontainer/abc.txt \
+    --destination /mnt/myfiles/abc.txt \
+    --source-key <key>
+#If the folder /mnt/myfiles does not exist, AzCopy creates it and downloads abc.txt into the new folder.
+
+#Download single blob from secondary region
+azcopy \
+    --source https://myaccount-secondary.blob.core.windows.net/mynewcontainer/abc.txt \
+    --destination /mnt/myfiles/abc.txt \
+    --source-key <key>
+#Note that you must have read-access geo-redundant storage enabled
+
+#Download all blobs
+azcopy \
+    --source https://myaccount.blob.core.windows.net/mycontainer \
+    --destination /mnt/myfiles \
+    --source-key <key> \
+    --recursive
+#Assume the following blobs reside in the specified container
+
+#Download blobs with specified prefix
+azcopy \
+    --source https://myaccount.blob.core.windows.net/mycontainer \
+    --destination /mnt/myfiles \
+    --source-key <key> \
+    --include "a" \
+    --recursive
+#Assume the following blobs reside in the specified container. All blobs beginning with the prefix a are downloaded.
+#After the download operation, the folder /mnt/myfiles includes the following files
+#he prefix applies to the virtual directory, which forms the first part of the blob name. In the example shown above, the virtual directory does not match the specified prefix, so no blob is downloaded. In addition, if the option --recursive is not specified, AzCopy does not download any blobs.
+
+#Set the last-modified time of exported files to be same as the source blobs
+azcopy \
+    --source https://myaccount.blob.core.windows.net/mycontainer \
+    --destination "/mnt/myfiles" \
+    --source-key <key> \
+    --preserve-last-modified-time
+#exclude blobs from the download operation based on their last-modified time. 
+azcopy \
+    --source https://myaccount.blob.core.windows.net/mycontainer \
+    --destination /mnt/myfiles \
+    --source-key <key> \
+    --preserve-last-modified-time \
+    --exclude-newer
+ #exclude blobs whose last modified time is the same or older than the destination file, add the --exclude-older option
+ azcopy \
+    --source https://myaccount.blob.core.windows.net/mycontainer \
+    --destination /mnt/myfiles \
+    --source-key <key> \
+    --preserve-last-modified-time \
+    --exclude-older
+ 
+
